@@ -7,14 +7,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), vueJsx(), vueDevTools()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {
@@ -24,10 +20,10 @@ export default defineConfig({
     strictPort: true,
     cors: true,
     headers: {
-        'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
     },
     watch: {
-        usePolling: true
-    }
-}
+      usePolling: true,
+    },
+  },
 })
