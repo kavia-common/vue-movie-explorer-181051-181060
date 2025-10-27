@@ -1,0 +1,4 @@
+{
+    "command": "npm run test:unit",
+    "working_directory": "/home/kavia/workspace/code-generation/vue-movie-explorer-181051-181060/movie_ai_frontend"
+}
