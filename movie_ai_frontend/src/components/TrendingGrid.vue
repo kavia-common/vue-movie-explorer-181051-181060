@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import MovieCard from './MovieCard.vue'
 import { getTrending } from '@/services/tmdb'
 import type { TMDBMovie } from '@/types/movie'
+import SkeletonGrid from './skeletons/SkeletonGrid.vue'
 
 const props = defineProps<{
   searchResults?: TMDBMovie[]
@@ -25,22 +26,30 @@ onMounted(async () => {
 })
 
 const items = computed(() => (props.showSearch ? props.searchResults ?? [] : trending.value))
+const busy = computed(() => !!props.loading || isLoading.value)
 </script>
 
 <template>
-  <section class="mt-4">
+  <section class="mt-4" :aria-busy="busy ? 'true' : 'false'">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold text-purple-900">
         {{ showSearch ? 'Results' : 'Trending This Week' }}
       </h2>
-      <span v-if="loading || isLoading" class="text-sm text-secondary">Loading…</span>
+      <span v-if="busy" class="text-sm text-secondary" role="status" aria-live="polite">Loading…</span>
     </div>
 
-    <div
-      class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6"
-      role="list"
-    >
-      <MovieCard v-for="m in items" :key="m.id" :movie="m" />
-    </div>
+    <template v-if="busy">
+      <div class="mt-4">
+        <SkeletonGrid :count="12" />
+      </div>
+    </template>
+    <template v-else>
+      <div
+        class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6"
+        role="list"
+      >
+        <MovieCard v-for="m in items" :key="m.id" :movie="m" />
+      </div>
+    </template>
   </section>
 </template>

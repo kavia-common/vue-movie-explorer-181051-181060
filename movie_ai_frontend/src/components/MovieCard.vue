@@ -18,6 +18,9 @@ const errorMsg = ref<string | null>(null)
 const canShowSave = computed(() => !!session.user)
 const isDisabled = computed(() => saving.value || isSaved.value)
 
+// Poster image loading state (for fade-in + skeleton)
+const imgLoaded = ref(false)
+
 async function onSave() {
   if (!session.user || isSaved.value) return
   saving.value = true
@@ -37,13 +40,22 @@ async function onSave() {
   <div
     class="group rounded-xl bg-white/80 border border-purple-200/60 shadow-soft overflow-hidden"
   >
-    <img
-      v-if="movie.poster_path"
-      :src="`https://image.tmdb.org/t/p/w342${movie.poster_path}`"
-      :alt="movie.title"
-      class="h-64 w-full object-cover transition-transform group-hover:scale-[1.02]"
-      loading="lazy"
-    />
+    <!-- Reserve 2:3 aspect ratio to prevent layout shift -->
+    <div class="relative w-full pt-[150%]">
+      <!-- Image with fade-in when loaded -->
+      <img
+        v-if="movie.poster_path"
+        :src="`https://image.tmdb.org/t/p/w342${movie.poster_path}`"
+        :alt="movie.title"
+        class="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.02] fade-in"
+        :class="imgLoaded ? 'opacity-100' : 'opacity-0'"
+        loading="lazy"
+        @load="imgLoaded = true"
+      />
+      <!-- Skeleton placeholder shown until image loads or when poster is missing -->
+      <div v-if="!imgLoaded" class="absolute inset-0 skeleton" aria-hidden="true"></div>
+    </div>
+
     <div class="p-3">
       <h3 class="line-clamp-2 text-sm font-semibold text-purple-900">{{ movie.title }}</h3>
       <div class="mt-2 flex items-center justify-between gap-2">
