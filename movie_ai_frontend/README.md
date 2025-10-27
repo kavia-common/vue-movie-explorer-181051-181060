@@ -43,3 +43,47 @@ npm run test:unit
 ```sh
 npm run lint
 ```
+
+---
+
+## Environment variables
+
+Create a `.env` file at the project root (see `.env.example` for a template) and provide:
+
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_KEY
+- VITE_TMDB_API_KEY
+
+> Note: VITE_TMDB_API_KEY should be a TMDB API credential. A TMDB v4 Read Access Token (Bearer) is recommended. We also append it as `api_key` for specific endpoints as required by our integration pattern.
+
+Example:
+
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_KEY=your_supabase_anon_key
+VITE_TMDB_API_KEY=your_tmdb_token_or_key
+```
+
+## TMDB integration pattern
+
+All TMDB requests are made using a single, centralized configuration exported from `src/services/tmdb.ts`:
+
+- Base URL: `https://api.themoviedb.org/3`
+- Headers:
+  - `accept: application/json`
+  - `Authorization: Bearer <VITE_TMDB_API_KEY>`
+- For the movie details endpoint we also include the `api_key` query parameter.
+
+The following functions are available:
+
+- `searchMovies(query: string)` → `GET /search/movie?query=...`
+- `getTrending()` → `GET /trending/movie/week`
+- `getFeatured()` → `GET /movie/top_rated` (or `/discover/movie?sort_by=popularity.desc`)
+- `fetchMovieDetails(id: number)` → `GET /movie/{id}?api_key=<VITE_TMDB_API_KEY>`
+
+All requests check `response.ok` and throw a descriptive error on failure.
+
+## Notes
+
+- If `VITE_TMDB_API_KEY` is missing, a warning is logged and TMDB features will not function.
+- Supabase environment variables are required for authentication and real-time features.
